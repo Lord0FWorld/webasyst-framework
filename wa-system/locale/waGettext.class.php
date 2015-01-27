@@ -12,6 +12,7 @@
  * @package wa-system
  * @subpackage locale
  */
+
 class waGettext
 {
     protected $type;
@@ -48,12 +49,13 @@ class waGettext
             if (!$string || substr($string, 0, 1) == '#') {
                 continue;
             }
+
             if (substr($string, 0, 12) == 'msgid_plural') {
                 $buffer['msgid_plural'] = $this->prepare(substr($string, 13));
             } elseif (substr($string, 0, 5) == 'msgid') {
                 if ($buffer) {
-                    if (isset($buffer['msgstr']) && ($buffer['msgstr'] || $this->all)) {
-                        $messages[$buffer['msgid']] = $buffer['msgstr'];
+                    if (isset($buffer['msgid']) && (!empty($buffer['msgstr']) || $this->all)) {
+                        $messages[$buffer['msgid']] = isset($buffer['msgstr']) ? $buffer['msgstr'] : '';;
                     }
                     $buffer = array();
                 }
@@ -71,6 +73,9 @@ class waGettext
                 }
             } elseif (substr($string, 0, 1) == '"') {
                 if (isset($buffer['msgid_plural'])) {
+                    if (!isset($buffer['msgstr'])) {
+                        $buffer['msgstr'] = array('');
+                    }
                     $buffer['msgstr'][count($buffer['msgstr']) - 1] .= $this->prepare($string);
                 } else {
                     if (!isset($buffer['msgstr'])) {
@@ -80,16 +85,18 @@ class waGettext
                     }
                 }
             }
+
         }
 
-        if ($buffer && isset($buffer['msgstr']) && ($buffer['msgstr'] || $this->all)) {
-            $messages[$buffer['msgid']] = $buffer['msgstr'];
+
+        if (isset($buffer['msgid']) && (!empty($buffer['msgstr']) || $this->all)) {
+            $messages[$buffer['msgid']] = isset($buffer['msgstr']) ? $buffer['msgstr'] : '';
         }
 
-        $meta = $this->meta2array($messages['']);
+        $meta = $this->meta2array(isset($messages['']) ? $messages[''] : '');
         unset($messages['']);
         return array(
-            'meta' => $meta,
+            'meta'     => $meta,
             'messages' => $messages,
         );
     }
@@ -120,7 +127,7 @@ class waGettext
             }
         }
         if (isset($array['Plural-Forms'])) {
-            $data  = explode(";", $array['Plural-Forms']);
+            $data = explode(";", $array['Plural-Forms']);
             $array['Plural-Forms'] = array();
             foreach ($data as $s) {
                 if (trim($s)) {

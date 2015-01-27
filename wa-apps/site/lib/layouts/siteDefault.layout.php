@@ -9,6 +9,7 @@ class siteDefaultLayout extends waLayout
 
         $this->view->assign('apps', siteHelper::getApps());
         $this->view->assign('domain_id', $this->domain_id);
+        $this->view->assign('domain_url', siteHelper::getDomain());
         $this->view->assign('domains', siteHelper::getDomains(true));
         $this->view->assign('pages', $this->getPages());
         $this->view->assign('domain_root_url', siteHelper::getDomainUrl());
@@ -18,6 +19,36 @@ class siteDefaultLayout extends waLayout
             'themes' => $this->getRights('themes'),
             'blocks' => $this->getRights('blocks'),
         ));
+
+        /**
+         * Extend backend sidebar
+         * Add extra sidebar items (menu items, system output)
+         * @event backend_sidebar
+         * @example #event handler example
+         * public function sidebarAction()
+         * {
+         *     $output = array();
+         *
+         *     #add external link into sidebar menu
+         *     $output['menu_li']='<li>
+         *         <a href="http://www.webasyst.com">
+         *             http://www.webasyst.com
+         *         </a>
+         *     </li>';
+         *
+         *     #add system link into sidebar menu
+         *     $output['system_li']='<li>
+         *         <a href="http://www.webasyst.com">
+         *             http://www.webasyst.com
+         *         </a>
+         *     </li>';
+         *
+         *     return $output;
+         * }
+         * @return array[string][string]string $return[%plugin_id%]['menu_li'] Single menu items
+         * @return array[string][string]string $return[%plugin_id%]['system_li'] Extra menu items
+         */
+        $this->view->assign('backend_sidebar', wa()->event('backend_sidebar'));
     }
 
     protected function getPages()

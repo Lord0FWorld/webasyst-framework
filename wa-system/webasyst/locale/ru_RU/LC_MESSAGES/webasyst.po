@@ -2,18 +2,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WebAsyst\n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2013-12-20 11:22+0400\n"
+"PO-Revision-Date: 2014-10-08 19:34+0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n%10)"
-">=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
+"Plural-Forms: nplurals=3; plural=((((n%10)==1)&&((n%100)!=11))?(0):(((((n"
+"%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-Basepath: .\n"
 "Language: ru_RU\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 1.6.9\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: .\n"
 
@@ -163,6 +163,12 @@ msgid_plural "roubles"
 msgstr[0] "рубль"
 msgstr[1] "рубля"
 msgstr[2] "рублей"
+
+msgid "hryvnia"
+msgid_plural "hryvnias"
+msgstr[0] "гривна"
+msgstr[1] "гривны"
+msgstr[2] "гривен"
 
 msgid "kopeck"
 msgid_plural "kopeks"
@@ -681,7 +687,7 @@ msgid "Guyana"
 msgstr "Гайана"
 
 msgid "Hong Kong"
-msgstr "Сянган (Гонгонг)"
+msgstr "Гонконг"
 
 msgid "Heard Island and McDonald Islands"
 msgstr "Херд и Макдональд, острова"
@@ -1301,14 +1307,14 @@ msgstr "Страна"
 msgid "ZIP"
 msgstr "Индекс"
 
-msgid "Home"
-msgstr "Домашний"
+msgid "home"
+msgstr "домашний"
 
-msgid "Work"
-msgstr "Рабочий"
+msgid "work"
+msgstr "рабочий"
 
-msgid "Personal"
-msgstr "Личный"
+msgid "personal"
+msgstr "личный"
 
 # Contact fields
 msgid "Title"
@@ -1368,11 +1374,14 @@ msgstr "Выберите значение"
 msgid "Name"
 msgstr "Имя"
 
-msgid "Mobile"
-msgstr "Мобильный"
+msgid "mobile"
+msgstr "мобильный"
 
 msgid "Instant messenger"
 msgstr "Мгновенные сообщения"
+
+msgid "Social network"
+msgstr "Социальная сеть"
 
 msgid "Invalid login or password"
 msgstr "Неправильный логин или пароль"
@@ -1382,6 +1391,9 @@ msgstr "Неправильный email или пароль"
 
 msgid "Login is required"
 msgstr "Логин обязателен"
+
+msgid "Incorrect numerical value"
+msgstr "Некорректное числовое значение"
 
 # Dashboard text
 msgid "Hi %s!"
@@ -1775,6 +1787,12 @@ msgstr "Тема %s для приложения “%s” не найдена."
 msgid "Sex"
 msgstr "Пол"
 
+msgid "Gender"
+msgstr "Пол"
+
+msgid "Job title"
+msgstr "Должность"
+
 msgid "Male"
 msgstr "Мужской"
 
@@ -1833,7 +1851,7 @@ msgstr "Доступ запрещен."
 
 #: /wa-system/auth/waAuth.class.php:114
 msgid "You are banned!"
-msgstr "Вас отказано в доступе!"
+msgstr "Вам отказано в доступе!"
 
 #: /wa-system/api/waAPIController.class.php:20
 msgid "Application \"%s\" not exists"
@@ -1968,10 +1986,12 @@ msgstr "Переименовать"
 
 msgid ""
 "You are using the original version of this design theme. No customizations "
-"have been applied to theme files yet."
+"have been applied to theme files yet, and thus there is nothing to revert "
+"for now."
 msgstr ""
 "Вы используете исходную версию темы дизайна. Изменения в шаблоны темы "
-"дизайна еще не вносились."
+"дизайна еще не вносились, поэтому пока еще нет изменений, которые можно было "
+"бы сбросить."
 
 msgid ""
 "This will erase all customizations you’ve made to this theme’s template "
@@ -2270,7 +2290,7 @@ msgstr "Новый файл"
 
 #: /wa-system/design/templates/Sidebar.html:34
 msgid "About"
-msgstr "О теме дизайна"
+msgstr "О теме"
 
 #: /wa-system/design/templates/Theme.html:5
 msgid "Last modified"
@@ -3588,8 +3608,8 @@ msgstr ""
 
 msgid "Returns SESSION var value (same as PHP $_SESSION[\"<em>key</em>\"])"
 msgstr ""
-"Возвращает значение переменной сессии SESSION (аналогично $_SESSION"
-"[\"<em>key</em>\"] в PHP)"
+"Возвращает значение переменной сессии SESSION (аналогично "
+"$_SESSION[\"<em>key</em>\"] в PHP)"
 
 msgid "Embeds HTML block by ID"
 msgstr "Отображает содержимое блока по его идентификатору"
@@ -3601,9 +3621,12 @@ msgid ""
 msgstr ""
 "Возвращает массив с данными авторизованного пользователя из соответствующей "
 "записи приложения «Контакты». Если указан необязательный параметр "
-"\"<em>field</em>\" (string), то возвращается содержимое конкретного поля "
-"записи о контакте. Если пользователь не авторизован, функция возвращает "
-"<em>false</em>"
+"<code>'field'</code> , то возвращается содержимое конкретного поля записи о "
+"контакте. Функция принимает любые параметры, подходящие для метода <code><a "
+"href=\"http://www.webasyst.ru/developers/docs/basics/classes/"
+"waContact#method-get\" target=\"_blank\">get()</a></code> системного класса "
+"<code>waContact</code>. Если пользователь не авторизован, функция возвращает "
+"<code>false</code>"
 
 msgid "Returns User Agent info by specified “<em>key</em>” parameter:"
 msgstr "Возвращает информацию User Agent по указанному параметру <em>key</em>:"
@@ -3688,8 +3711,8 @@ msgstr ""
 "например, <em>windows, mac, linux, ios, android, blackberry</em>;"
 
 msgid ""
-"Displays the \"<em>bar</em>\" key value of an array. Similar to PHP $foo"
-"[\"bar\"]"
+"Displays the \"<em>bar</em>\" key value of an array. Similar to PHP "
+"$foo[\"bar\"]"
 msgstr ""
 "Отображает значение ключа массива «<em>bar</em>» аналогично $foo[\"bar\"] в "
 "PHP."
@@ -3794,3 +3817,363 @@ msgstr ""
 #: /wa-system/design/templates/Theme.html:126
 msgid "Revert"
 msgstr "Восстановить"
+
+msgid "Website request"
+msgstr "Запрос с сайта"
+
+msgid "Thank you!"
+msgstr "Спасибо!"
+
+msgid "Proceed to checkout"
+msgstr "Оформить заказ"
+
+msgid "Checkout"
+msgstr "Оформить заказ"
+
+msgid "Shop"
+msgstr "Магазин"
+
+msgid "Blog"
+msgstr "Блог"
+
+msgid "Photos"
+msgstr "Фото"
+
+msgid "Photostream"
+msgstr "Фотопоток"
+
+msgid "Favorites"
+msgstr "Избранное"
+
+msgid "Your message has been sent."
+msgstr "Ваше сообщение было отправлено."
+
+#: /wa-system/image/waImage.class.php:64
+msgid "Not an image or invalid image:"
+msgstr "Не является файлом изображения:"
+
+#: /wa-system/image/waImage.class.php:322
+msgid "File must be writable:"
+msgstr "Файл должен быть доступен для записи:"
+
+#: /wa-system/config/waAppConfig.class.php:66
+msgid "added a new template"
+msgstr "добавил новый шаблон"
+
+#: /wa-system/config/waAppConfig.class.php:69
+msgid "edited template"
+msgstr "отредактировал шаблон"
+
+#: /wa-system/config/waAppConfig.class.php:72
+msgid "deleted template"
+msgstr "удалил шаблон"
+
+#: /wa-system/config/waAppConfig.class.php:75
+msgid "uploaded a new theme"
+msgstr "загрузил новую тему"
+
+#: /wa-system/config/waAppConfig.class.php:78
+msgid "downloaded theme"
+msgstr "скачал тему"
+
+#: /wa-system/config/waAppConfig.class.php:81
+msgid "deleted theme"
+msgstr "удалил тему"
+
+#: /wa-system/config/waAppConfig.class.php:84
+msgid "reset theme settings"
+msgstr "восстановил дефолт-настройки темы"
+
+#: /wa-system/config/waAppConfig.class.php:87
+msgid "create theme duplicate"
+msgstr "создал дубликат темы"
+
+#: /wa-system/config/waAppConfig.class.php:90
+msgid "renamed theme"
+msgstr "переименовал тему"
+
+#: /wa-system/config/waAppConfig.class.php:102
+msgid "added a new page"
+msgstr "добавил новую страницу"
+
+#: /wa-system/config/waAppConfig.class.php:105
+msgid "edited a website page"
+msgstr "отредактировал страницу"
+
+#: /wa-system/config/waAppConfig.class.php:108
+msgid "deleted page"
+msgstr "удалил страницу"
+
+#: /wa-system/config/waAppConfig.class.php:111
+msgid "moved page"
+msgstr "переместил страницу"
+
+#: /wa-system/config/waAppConfig.class.php:121
+msgid "logged in"
+msgstr "вошел в аккаунт"
+
+#: /wa-system/config/waAppConfig.class.php:124
+msgid "logged out"
+msgstr "вышел из аккаунта"
+
+#: /wa-system/config/waAppConfig.class.php:127
+msgid "signed up"
+msgstr "зарегистрировался"
+
+#: /wa-system/config/waAppConfig.class.php:130
+msgid "edited profile in customer portal"
+msgstr "отредактировал профиль в личном кабинете"
+
+#: /wa-system/config/waAppConfig.class.php:133
+msgid "enabled access for contact"
+msgstr "разрешил доступ для контакта"
+
+#: /wa-system/config/waAppConfig.class.php:136
+msgid "disabled access for contact"
+msgstr "запретил доступ для контакта"
+
+#: /wa-system/contact/waContactCompositeField.class.php:84
+#: /wa-system/contact/waContactField.class.php:339
+#: /wa-system/contact/waContactField.class.php:457
+msgid "Data must be an array."
+msgstr "Данные должны быть массивом"
+
+#: /wa-system/validator/waDateValidator.class.php:21
+msgid "Incorrect date"
+msgstr "Направильная дата"
+
+msgid "Facebook"
+msgstr "Фейсбук"
+
+msgid "Twitter"
+msgstr "Твиттер"
+
+msgid "VK"
+msgstr "ВКонтакте"
+
+msgid "Instagram"
+msgstr "Инстаграм"
+
+msgid "Social"
+msgstr "Соцсети"
+
+msgid "Contact us"
+msgstr "Обратная связь"
+
+msgid "Submit"
+msgstr "Отправить"
+
+msgid "Back"
+msgstr "Назад"
+
+msgid "Subscribe to our email newsletter"
+msgstr "Подписаться на новости"
+
+msgid "Follow us"
+msgstr "Подписаться"
+
+msgid "Thank you! We’ll keep you posted."
+msgstr "Спасибо! Будем держать вас в курсе."
+
+msgid "View cart"
+msgstr "Посмотреть корзину"
+
+msgid "My profile"
+msgstr "Мой профиль"
+
+#: /wa-system/contact/waContactForm.class.php:344
+msgid "New password"
+msgstr "Новый пароль"
+
+#: /wa-system/contact/waContactForm.class.php:364
+#: /wa-system/controller/waMyProfileAction.class.php:145
+msgid "Photo"
+msgstr "Фото"
+
+#: /wa-system/design/templates/Design.html:58
+msgid "Site"
+msgstr "Сайт"
+
+#: /wa-system/design/templates/Design.html:62
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: /wa-system/design/templates/Design.html:66
+msgid "Templates"
+msgstr "Шаблоны"
+
+#: /wa-system/design/templates/Design.html:67
+msgid "Themes"
+msgstr "Темы дизайна"
+
+#: /wa-system/design/templates/Design.html:68
+msgid "Settings"
+msgstr "Настройки"
+
+#: /wa-system/design/templates/DesignEdit.html:130
+msgid ""
+"This list represent all parent theme (<strong>%s</strong>) templates which "
+"are currently not linked in this design theme."
+msgstr ""
+"Этот список отображает все шаблоны дизайна родительской темы (<strong>%s</"
+"strong>), которые еще не подключены в текущей теме дизайна."
+
+#: /wa-system/design/templates/Theme.html:9
+msgid "Download theme backup"
+msgstr "Скачать архив с темой дизайна"
+
+#: /wa-system/design/templates/Theme.html:10
+msgid "Clone theme"
+msgstr "Создать клон темы"
+
+#: /wa-system/design/templates/Theme.html:11
+#: /wa-system/design/templates/Theme.html:296
+msgid "Rename theme"
+msgstr "Переименовать тему"
+
+#: /wa-system/design/templates/Theme.html:14
+msgid ""
+"You did not apply customizations to this theme yet, and thus there is "
+"nothing to revert."
+msgstr ""
+"Вы еще не вносили изменения в эту тему дизайна, поэтому сбрасывать пока "
+"нечего."
+
+#: /wa-system/design/templates/Theme.html:47
+#: /wa-system/design/templates/Theme.html:281
+msgid "Start using %s theme"
+msgstr "Начать использовать тему «%s»"
+
+#: /wa-system/design/templates/Theme.html:50
+msgid "preview this theme"
+msgstr "открыть предпросмотр"
+
+#: /wa-system/design/templates/Theme.html:59
+msgid "Theme path"
+msgstr "Путь к папке темы"
+
+#: /wa-system/design/templates/Theme.html:73
+msgid "Theme usage"
+msgstr "Использование темы"
+
+#: /wa-system/design/templates/Theme.html:84
+msgid "All listed routes are linking %s design theme right now."
+msgstr ""
+"Тема дизайна «%s» в данный момент используется по всем перечисленным адресам."
+
+#: /wa-system/design/templates/Theme.html:178
+msgid ""
+"%s design theme does not offer customizable display settings. Please use "
+"template editor for customizing the theme."
+msgstr ""
+"Тема дизайна «%s» не предоставляет опций для настройки внешнего вида. "
+"Используйте редактор шаблонов дизайна для настройки оформления."
+
+#: /wa-system/design/templates/Theme.html:185
+msgid "About this theme"
+msgstr "Информация о теме"
+
+#: /wa-system/design/templates/Theme.html:240
+msgid ""
+"Start using this theme on one of your existing %s app routes, or create a "
+"new route:"
+msgstr ""
+"Подключите тему дизайна к одному из существующих поселений приложения «%s» "
+"или создайте новое правило маршрутизации:"
+
+#: /wa-system/design/templates/Theme.html:244
+msgid "Existing route"
+msgstr "Выберите правило"
+
+#: /wa-system/design/templates/Theme.html:256
+msgid "New route"
+msgstr "Новое правило"
+
+#: /wa-system/design/templates/Theme.html:344
+msgid "Change parent theme"
+msgstr "Сменить родительскую тему"
+
+#: /wa-system/design/templates/Theme.html:36
+msgid ""
+"%s design theme has been successfully installed. Start using this theme by "
+"clicking the button below."
+msgstr ""
+"Тема дизайна «%s» была успешно установлена. Начните использование темы, "
+"подключив ее с помощью кнопки ниже."
+
+#: /wa-system/design/templates/Theme.html:39
+msgid "%s design theme is currently not in use on your websites."
+msgstr "Тема дизайна «%s» в данный момент не используется на ваших сайтах."
+
+#: /wa-system/design/templates/Themes.html:43
+msgid "Upload theme archive"
+msgstr "Загрузить архив с темой"
+
+#: /wa-system/page/templates/Help.html:8
+msgid "Blocks"
+msgstr "Блоки"
+
+#: /wa-system/webasyst/templates/mail/Signup.html:7
+msgid "Confirm your email by clicking this link"
+msgstr "Подтвердите ваш аккаунт, щелкнув по ссылке"
+
+#: /wa-system/design/templates/DesignEdit.html:36
+msgid "Roll back my file to the original version"
+msgstr "Сбросить мои изменения к оригинальной версии файла"
+
+#: /wa-system/design/templates/DesignEdit.html:41
+msgid "This will reset all your changes. Are you sure?"
+msgstr "Это сбросит все выполненные вами изменения. Вы уверены?"
+
+#: /wa-system/response/waResponse.class.php:405
+msgid "<strong>%s</strong> theme preview in action"
+msgstr "Предпросмотр темы дизайна <strong>%s</strong>"
+
+#: /wa-system/response/waResponse.class.php:408
+msgid "Stop preview session"
+msgstr "Завершить предпросмотр"
+
+msgid "Edit"
+msgstr "Редактировать"
+
+msgid "Contact information successfully updated!"
+msgstr "Контактная информация успешно обновлена!"
+
+msgid "Change password"
+msgstr "Сменить пароль"
+
+msgid "Delete photo"
+msgstr "Удалить фото"
+
+msgid "There are no routes for %s app on this site yet."
+msgstr "На этом сайте нет поселений приложения «%s»."
+
+msgid ""
+"Customizing %s theme settings below will affect all listed routes. If you "
+"want to keep individual designs, use separate theme copies (clones) for each "
+"route."
+msgstr ""
+"Изменение настроек темы дизайна «%s» затронет все перечисленные поселения "
+"приложения. Если вы хотите сохранить индивидуальный дизайн для каждого "
+"поселения, используйте отдельные копии (дубликаты) темы дизайна."
+
+msgid ""
+"This design theme is also used on <strong>%s</strong>. Editing theme "
+"template files will affect both %s and other listed routes."
+msgstr ""
+"Эта тема дизайна также используется по адресу <strong>%s</strong>. "
+"Редактирование шаблонов дизайна этой темы приведет к изменению внешнего вида "
+"как %s, так и всех других перечисленных поселений."
+
+msgid "Connected accounts"
+msgstr "Связанные аккаунты"
+
+msgid ""
+"Connect this account to your social network accounts so next time you can "
+"log in without entering your password:"
+msgstr ""
+"Подключите этот аккаунт к вашим аккаунтам в соцсетях, чтобы в следующий раз "
+"входить на сайт без ввода пароля:"
+
+msgid "%s design theme"
+msgstr "Тема дизайна «%s»"

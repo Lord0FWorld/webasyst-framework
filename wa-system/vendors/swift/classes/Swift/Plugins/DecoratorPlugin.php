@@ -11,11 +11,10 @@
 /**
  * Allows customization of Messages on-the-fly.
  *
- * @package Swift
+ * @package    Swift
  * @subpackage Plugins
- *
- * @author Chris Corbyn
- * @author Fabien Potencier
+ * @author     Chris Corbyn
+ * @author     Fabien Potencier
  */
 class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_Plugins_Decorator_Replacements
 {
@@ -68,7 +67,7 @@ class Swift_Plugins_DecoratorPlugin implements Swift_Events_SendListener, Swift_
      */
     public function setReplacements($replacements)
     {
-        if (!($replacements instanceof \Swift_Plugins_Decorator_Replacements)) {
+        if (!($replacements instanceof Swift_Plugins_Decorator_Replacements)) {
             $this->_replacements = (array) $replacements;
         } else {
             $this->_replacements = $replacements;

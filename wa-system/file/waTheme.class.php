@@ -19,6 +19,8 @@
  * @property string $description
  * @property string $about
  * @property string $version
+ * @property-read string $id
+ * @property-read string $slug
  * @property-read string $vendor
  * @property-read string $author
  * @property-read string $app_id
@@ -226,7 +228,7 @@ class waTheme implements ArrayAccess
                     }
 
                     $this->info['files'] = array();
-                    if ($files = $xml->files) {
+                    if ($files = $xml->{'files'}) {
                         /**
                          * @var SimpleXMLElement $files
                          */
@@ -234,9 +236,13 @@ class waTheme implements ArrayAccess
                             $path = (string)$file['path'];
                             if (in_array(pathinfo($path, PATHINFO_EXTENSION), array('js', 'html', 'css'))) {
                                 $this->info['files'][$path] = array(
-                                    'custom' => isset($file['custom']) && (string)$file['custom'] ? true : false
+                                    'custom' => isset($file['custom']) && (string)$file['custom'] ? true : false,
                                 );
-                                $this->info['files'][$path]['parent'] = isset($file['parent']) && (bool)$file['parent'] ? 1 : 0;
+                                if (isset($file['modified']) && (string)$file['modified']) {
+                                    $this->info['files'][$path]['modified'] = true;
+                                }
+
+                                $this->info['files'][$path]['parent'] = isset($file['parent']) && (string)$file['parent'] ? true : false;
                                 if ($this->info['files'][$path]['parent']) {
                                     $this->info['files'][$path]['parent_exists'] = $parent_exists;
                                 }
@@ -250,7 +256,7 @@ class waTheme implements ArrayAccess
                         ksort($this->info['files']);
                     }
                     $this->info['settings'] = array();
-                    if ($settings = $xml->settings) {
+                    if ($settings = $xml->{'settings'}) {
                         /**
                          * @var SimpleXMLElement $settings
                          */
@@ -263,27 +269,47 @@ class waTheme implements ArrayAccess
                                 'control_type' => isset($setting['control_type']) ? (string)$setting['control_type'] : 'text',
                                 'value'        => (string)$setting->{'value'},
                             );
+                            $s = &$this->info['settings'][$var];
+                            foreach ($setting->{'value'} as $value) {
+                                if ($value && ($locale = (string)$value['locale'])) {
+                                    if (!is_array($s['value'])) {
+                                        $s['value'] = array();
+                                    }
+                                    $s['value'][$locale] = (string)$value;
+                                }
+                            }
                             foreach ($setting->{'name'} as $value) {
                                 if ($value && ($locale = (string)$value['locale'])) {
-                                    $this->info['settings'][$var]['name'][$locale] = (string)$value;
+                                    $s['name'][$locale] = (string)$value;
                                 }
                             }
                             if ($setting->{'options'}) {
                                 $this->info['settings'][$var]['options'] = array();
                                 foreach ($setting->{'options'}->children() as $option) {
-                                    $this->info['settings'][$var]['options'][(string)$option['value']] = array();
+                                    $s['options'][(string)$option['value']] = array();
                                     foreach ($option->{'name'} as $value) {
                                         if ($value && ($locale = (string)$value['locale'])) {
-                                            $this->info['settings'][$var]['options'][(string)$option['value']]['name'][$locale] = (string)$value;
+                                            $s['options'][(string)$option['value']]['name'][$locale] = (string)$value;
+                                        }
+                                    }
+                                    if ($option->{'description'}) {
+                                        foreach ($option->{'description'} as $value) {
+                                            if ($value && ($locale = (string)$value['locale'])) {
+                                                $s['options'][(string)$option['value']]['description'][$locale] = (string)$value;
+                                            }
                                         }
                                     }
                                 }
                             }
+                            if ($setting->{'filename'}) {
+                                $s['filename'] = (string)$setting->{'filename'};
+                            }
+                            unset($s);
                         }
                     }
 
                     $this->info['thumbs'] = array();
-                    if ($thumbs = $xml->thumbs) {
+                    if ($thumbs = $xml->{'thumbs'}) {
                         /**
                          * @var SimpleXMLElement $thumbs
                          */
@@ -295,6 +321,18 @@ class waTheme implements ArrayAccess
                         }
                     }
 
+                    $this->info['locales'] = array();
+                    if ($locales = $xml->{'locales'}) {
+                        /**
+                         * @var SimpleXMLElement $locales
+                         */
+                        foreach ($locales->children() as $locale) {
+                            $msgid = (string)$locale->{'msgid'};
+                            foreach ($locale->{'msgstr'} as $msgstr) {
+                                $this->info['locales'][$msgid][(string)$msgstr['locale']] = (string)$msgstr;
+                            }
+                        }
+                    }
                     break;
                 case 'php':
                     //deprecated
@@ -330,6 +368,7 @@ class waTheme implements ArrayAccess
             throw new waException("Unexpected file extension");
         }
         $options['custom'] = 1;
+        $options['modified'] = 1;
         $this->setFiles(array($path => $options));
         return $this;
     }
@@ -364,16 +403,17 @@ class waTheme implements ArrayAccess
     public function changeFile($file, $description)
     {
         $this->init();
+        $this->setFiles(array($file => array('modified' => true)));
         if (!isset($this->info['files'][$file]) || !$this->info['files'][$file]['custom']) {
-            return true;
+            return $this->save();
         }
         if (is_array($description)) {
             if ($this->info['files'][$file]['description'] == $description) {
-                return true;
+                return $this->save();
             }
         } else {
             if (self::prepareField($this->info['files'][$file]['description']) == $description) {
-                return true;
+                return $this->save();
             }
         }
         $this->setFiles(array($file => array('description' => $description)));
@@ -382,12 +422,17 @@ class waTheme implements ArrayAccess
 
     /**
      * @param bool $as_dom
+     * @throws waException
      * @return DOMDocument|SimpleXMLElement
      */
     private function getXML($as_dom = false)
     {
+
+        if ($as_dom && !class_exists('DOMDocument')) {
+            throw new waException('PHP extension DOM required');
+        }
         $path = $this->path.'/'.self::PATH;
-        if (file_exists($path)) {
+        if (file_exists($path) && filesize($path)) {
             if ($as_dom) {
                 $xml = new DOMDocument(1.0, 'UTF-8');
                 $xml->preserveWhiteSpace = true;
@@ -402,10 +447,10 @@ class waTheme implements ArrayAccess
 <!DOCTYPE theme PUBLIC "wa-app-theme" "http://www.webasyst.com/wa-content/xml/wa-app-theme.dtd" >
 <theme id="{$this->id}" system="0" vendor="unknown" author="unknown" app="{$this->app}" version="1.0.0" parent_theme_id="">
     <name locale="en_US">{$this->id}</name>
-    <description locale="en_US"></description>
+    <description locale="en_US">There's no description</description>
     <files>
     </files>
-    <about locale="en_US"></about>
+    <about locale="en_US">There's no about</about>
 </theme>
 XML;
             if ($as_dom) {
@@ -448,7 +493,6 @@ XML;
                                 $query = "/theme/{$field}[@locale='{$locale}']";
                                 if (!($node = $xpath->query($query)->item(0))) {
                                     $node = new DOMElement($field, $value);
-                                    //$xml_node->setAttribute('locale', $locale);
                                     $theme->appendChild($node);
                                     $node->setAttribute('locale', $locale);
                                 } else {
@@ -478,7 +522,11 @@ XML;
                                     $file->setAttribute('path', $file_path);
                                 }
                                 $file->setAttribute('custom', $info['custom'] ? '1' : '0');
-                                if (isset($info['parent'])) {
+
+                                if (!empty($info['modified']) || (string)$file->getAttribute('modified')) {
+                                    $file->setAttribute('modified', $info['modified'] ? '1' : '0');
+                                }
+                                if (!empty($info['parent'])) {
                                     $file->setAttribute('parent', $info['parent'] ? '1' : '0');
                                 }
 
@@ -516,8 +564,24 @@ XML;
                         if ($settings = $xpath->query($query)->item(0)) {
                             foreach ($this->changed['settings'] as $var => $changed) {
                                 $query = "/theme/settings/setting[@var='{$var}']/value";
-                                if ($value = $xpath->query($query)->item(0)) {
-                                    $value->nodeValue = ifempty($this->settings[$var]['value']);
+                                $value_items = $xpath->query($query);
+                                $length = $value_items->length;
+
+                                if ($length && ($value = $value_items->item(0))) {
+                                    if (ifset($this->settings[$var]['control_type']) == 'text') {
+                                        $value->nodeValue = '';
+                                        $value->appendChild(new DOMCdataSection(ifempty($this->settings[$var]['value'], '')));
+                                    } else {
+                                        $value->nodeValue = ifempty($this->settings[$var]['value'], '');
+                                    }
+
+                                    if ($value->hasAttribute('locale')) {
+                                        $value->removeAttribute('locale');
+                                    }
+                                    $parent = $value->parentNode;
+                                    for ($index = 1; $index < $length; $index++) {
+                                        $parent->removeChild($value_items->item($index));
+                                    }
                                 }
                             }
                         }
@@ -545,6 +609,7 @@ XML;
                 self::protect($this->app, $this->path_custom ? true : false);
             }
         }
+
         return $res;
     }
 
@@ -602,6 +667,21 @@ XML;
         }
     }
 
+    public function revertFile($file)
+    {
+        if ($f = $this->getFile($file)) {
+            if ($f['parent'] && $this->parent_theme_id) {
+                $this->getParentTheme()->revertFile($file);
+                return;
+            } else {
+                waFiles::copy($this->path_original.'/'.$file, $this->path.'/'.$file);
+            }
+            $this->setFiles(array($file => array('modified' => 0)));
+            $this->save();
+        }
+    }
+
+
     /**
      *
      * Fork theme into custom user theme with current id as theme_parent_id
@@ -648,7 +728,7 @@ XML;
             }
             $instance->save();
             return $instance;
-        } else if (($this->type == self::ORIGINAL) || !empty($this->info['system'])) {
+        } elseif (($this->type == self::ORIGINAL) || !empty($this->info['system'])) {
             return $this->copy($id, $params);
         } else {
             foreach ($params as $param => $value) {
@@ -716,7 +796,7 @@ XML;
             waFiles::create($path);
             $htaccess = <<<HTACCESS
 
-<FilesMatch "\.(php\d*|html?|xml)$">
+<FilesMatch "\\.(php\\d*|html?|xml)$">
     Deny from all
 </FilesMatch>
 
@@ -942,8 +1022,14 @@ HTACCESS;
                 if (isset($properties['custom'])) {
                     $this->info['files'][$path]['custom'] = $properties['custom'] ? true : false;
                 }
+                if (isset($properties['modified'])) {
+                    $this->info['files'][$path]['modified'] = $properties['modified'] ? true : false;
+                }
                 if (isset($properties['parent'])) {
                     $this->info['files'][$path]['parent'] = $properties['parent'] ? true : false;
+                }
+                if (!isset($this->info['files'][$path]['description'])) {
+                    $this->info['files'][$path]['description'] = '';
                 }
                 $this->info['files'][$path]['description'] = self::prepareSetField($this->info['files'][$path]['description'], $description);
             }
@@ -989,7 +1075,7 @@ HTACCESS;
         if ($method_name = $this->getMethod($offset)) {
             $value = $this->{$method_name}();
         } elseif ($this->init($offset)) {
-            $value =  & $this->info[$offset];
+            $value =  &$this->info[$offset];
         } elseif (isset($this->extra_info[$offset])) {
             $value = $this->extra_info[$offset];
         }
@@ -1057,7 +1143,7 @@ HTACCESS;
         if (isset($this->info[$offset])) {
             $this->changed[$offset] = true;
             unset($this->info[$offset]);
-        } else if (isset($this->extra_info[$offset])) {
+        } elseif (isset($this->extra_info[$offset])) {
             unset($this->extra_info[$offset]);
         }
     }
@@ -1104,13 +1190,23 @@ HTACCESS;
                 $s['name'] = isset($s['name']) ? self::prepareField($s['name']) : $var;
                 if (isset($s['options'])) {
                     foreach ($s['options'] as &$o) {
-                        if (isset($o['name'])) {
-                            $o = self::prepareField($o['name']);
+                        if ($s['control_type'] == 'radio') {
+                            $o['name'] = self::prepareField($o['name']);
+                            if (isset($o['description'])) {
+                                $o['description'] = self::prepareField($o['description']);
+                            }
                         } else {
-                            $o = '';
+                            if (isset($o['name'])) {
+                                $o = self::prepareField($o['name']);
+                            } else {
+                                $o = '';
+                            }
                         }
                     }
                     unset($o);
+                }
+                if (isset($s['value']) && is_array($s['value'])) {
+                    $s['value'] = $s['value'][self::getLocale($s['value'])];
                 }
             }
             unset($s);
@@ -1123,6 +1219,18 @@ HTACCESS;
             return $settings;
         }
         return $this->settings;
+    }
+
+
+    public function getLocales()
+    {
+        $this->init();
+        $locale = wa()->getLocale();
+        $result = array();
+        foreach ($this->info['locales'] as $id => $str) {
+            $result[$id] = !empty($str[$locale]) ? $str[$locale] : null;
+        }
+        return $result;
     }
 
     private static function getLocale($data = array())
@@ -1143,7 +1251,7 @@ HTACCESS;
 
     public static function verify($id)
     {
-        if (!preg_match('/^[a-z_][a-z_\-0-9]*$/i', $id)) {
+        if (!preg_match('/^[a-z0-9_\-]+$/i', $id)) {
             throw new waException(sprintf(_ws("Invalid theme id %s"), $id));
         }
     }
@@ -1155,6 +1263,12 @@ HTACCESS;
         return $themes;
     }
 
+    /**
+     * @param $domains
+     * @param $app_id
+     * @param $theme_id
+     * @return array|bool
+     */
     private static function getRoutingRules($domains, $app_id, $theme_id)
     {
         static $themes;
@@ -1322,6 +1436,7 @@ HTACCESS;
             'js', 'css', 'html', 'txt',
             'png', 'jpg', 'jpeg', 'jpe', 'tiff', 'bmp', 'gif', 'svg',
             'htc',
+            'cur',
             'ttf', 'eot', 'otf', 'woff', '',
         );
 

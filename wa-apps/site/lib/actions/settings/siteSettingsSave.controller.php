@@ -11,12 +11,34 @@ class siteSettingsSaveController extends waJsonController
             $routes = array();
         }
         $domain = siteHelper::getDomain();        
-        $url = waRequest::post('url');
+        $url = mb_strtolower(rtrim(waRequest::post('url'), '/'));
         if ($url != $domain) {
             $domain_model = new siteDomainModel();
+            // domain already exists
+            if ($domain_model->getByName($url)) {
+                $this->errors = sprintf(_w("Website with a domain name %s is already registered in this Webasyst installation. Delete %s website (Site app > %s > Settings) to be able to use it's domain name for another website."), $url, $url, $url);
+                return;
+            }
             $domain_model->updateById(siteHelper::getDomainId(), array('name' => $url));
             $routes[$url] = $routes[$domain];
             unset($routes[$domain]);
+
+            // move configs
+            $old = $this->getConfig()->getConfigPath('domains/'.$domain.'.php');
+            if (file_exists($old)) {
+                waFiles::move($old, $this->getConfig()->getConfigPath('domains/'.$url.'.php'));
+            }
+            $old = wa()->getDataPath('data/'.$domain.'/', true, 'site', false);
+            if (file_exists($old)) {
+                waFiles::move($old, wa()->getDataPath('data/'.$url.'/', true));
+                clearstatcache();
+                try {
+                    waFiles::delete($old, true);
+                } catch (waException $e) {
+                }
+            }
+            $domain = $url;
+            siteHelper::setDomain(siteHelper::getDomainId(), $domain);
         }
         
         
@@ -89,60 +111,11 @@ class siteSettingsSaveController extends waJsonController
         
         
         $this->saveFavicon();
+        $this->saveTouchicon();
         $this->saveRobots();
 
-        $this->saveAuthSettings();
-        $this->log('site_edit');
+        $this->logAction('site_edit');
     }
-
-    protected function saveAuthSettings()
-    {
-        $auth_enabled = waRequest::post('auth_enabled');
-        $auth_app = waRequest::post('auth_app');
-        $domain = siteHelper::getDomain();
-        $config = wa()->getConfig()->getAuth();
-        if (!isset($config[$domain])) {
-            if (!$auth_enabled) {
-                return;
-            }
-            $config[$domain] = array();
-        }
-        if ($auth_enabled && $auth_app) {
-            $config[$domain]['auth'] = true;
-            $config[$domain]['app'] = $auth_app;
-            if (waRequest::post('auth_captcha')) {
-                $config[$domain]['signup_captcha'] = true;
-            } elseif (isset($config[$domain]['signup_captcha'])) {
-                unset($config[$domain]['signup_captcha']);
-            }
-        } else {
-            if (isset($config[$domain]['auth'])) {
-                unset($config[$domain]['auth']);
-            }
-            if (isset($config[$domain]['app'])) {
-                unset($config[$domain]['app']);
-            }
-            if (isset($config[$domain]['signup_captcha'])) {
-                unset($config[$domain]['signup_captcha']);
-            }
-        }
-        // save auth adapters
-        if (waRequest::post('auth_adapters') && waRequest::post('adapter_ids')) {
-            $config[$domain]['adapters'] = array();
-            $adapters = waRequest::post('adapters', array());
-            foreach (waRequest::post('adapter_ids') as $adapter_id) {
-                $config[$domain]['adapters'][$adapter_id] = $adapters[$adapter_id];
-            }
-        } else {
-            if (isset($config[$domain]['adapters'])) {
-                unset($config[$domain]['adapters']);
-            }
-        }
-        if (!$this->getConfig()->setAuth($config)) {
-            $this->errors = sprintf(_w('File could not be saved due to the insufficient file write permissions for the "%s" folder.'), 'wa-config/');
-        }
-    }
-
 
     protected function saveBackground()
     {
@@ -183,6 +156,25 @@ class siteSettingsSaveController extends waJsonController
             }
         } elseif ($favicon->error_code != UPLOAD_ERR_NO_FILE) {
             $this->errors = $favicon->error;
+        }
+    }
+
+    protected function saveTouchicon()
+    {
+        $touchicon = waRequest::file('touchicon');
+        if ($touchicon->uploaded()) {
+            if ($touchicon->extension !== 'png') {
+                $this->errors = _w('Files with extension *.png are allowed only.');
+            } else {
+                $path = wa()->getDataPath('data/'.siteHelper::getDomain().'/', true);
+                if (!file_exists($path) || !is_writable($path)) {
+                    $this->errors = sprintf(_w('File could not be saved due to the insufficient file write permissions for the "%s" folder.'), 'wa-data/public/site/data/'.siteHelper::getDomain());
+                } elseif (!$touchicon->moveTo($path, 'apple-touch-icon.png')) {
+                    $this->errors = _w('Failed to upload file.');
+                }
+            }
+        } elseif ($touchicon->error_code != UPLOAD_ERR_NO_FILE) {
+            $this->errors = $touchicon->error;
         }
     }
     

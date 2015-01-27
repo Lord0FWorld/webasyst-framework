@@ -59,18 +59,19 @@ class blogViewHelper extends waAppViewHelper
      * - params: add post params
      *
      * @param int $post_id
-     * @param     array @extend_options
+     * @param array $extend_options
+     * @param array $fields
      *
      * @return mixed
      */
-    public function post($post_id, $extend_options = array())
+    public function post($post_id, $extend_options = array(), $fields = array())
     {
         $post = null;
         if ($available_blogs = $this->blogs()) {
             $post_model = new blogPostModel();
             $search_options = array('id' => $post_id, 'blog_id' => array_keys($available_blogs));
             $extend_data = array('blog' => $available_blogs);
-            $post = $post_model->search($search_options, $extend_options, $extend_data)->fetchSearchItem($fields);
+            $post = $post_model->search($search_options, $extend_options + array('params' => true), $extend_data)->fetchSearchItem($fields);
         }
         $non_escape_fields = array(
             'text'            => true,
@@ -111,7 +112,7 @@ class blogViewHelper extends waAppViewHelper
             if ($search_options) {
                 $extend_data = array('blog' => $available_blogs);
                 $number_of_posts = max(1, $number_of_posts);
-                $posts = $post_model->search($search_options, null, $extend_data)->fetchSearchPage(1, $number_of_posts, $fields);
+                $posts = $post_model->search($search_options, array('params' => true), $extend_data)->fetchSearchPage(1, $number_of_posts, $fields);
             }
         }
         $non_escape_fields = array(
@@ -139,7 +140,8 @@ class blogViewHelper extends waAppViewHelper
         $comments = $comment_model->getList(array(
             'offset'  => 0,
             'limit'   => $limit,
-            'blog_id' => $blog_ids
+            'blog_id' => $blog_ids,
+            'approved' => true,
         ), $fields);
 
         $post_ids = array();
@@ -169,10 +171,10 @@ class blogViewHelper extends waAppViewHelper
 
         <form action="{$url}" method="POST" id="{$id}">
         <p>
-        	<input type="text" name="title"/><br/>
-        	<textarea name="text" cols="60" rows="20"></textarea><br/>
-        	{$this->wa->getView()->getHelper()->csrf()}
-        	<input type="submit" value="{$submit}"/>
+            <input type="text" name="title"/><br/>
+            <textarea name="text" cols="60" rows="20"></textarea><br/>
+            {$this->wa->getView()->getHelper()->csrf()}
+            <input type="submit" value="{$submit}"/>
         </p>
         </form>
 HTML;
@@ -214,11 +216,6 @@ HTML;
     public function dataUrl($path = null)
     {
         return wa()->getDataUrl($path, true);
-    }
-
-    public function config()
-    {
-        return wa('blog')->getConfig();
     }
 
     public function option($name)

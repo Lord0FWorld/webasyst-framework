@@ -38,6 +38,12 @@
 .credentials .date { margin: 0 3px; }
 .post .credentials { margin-bottom: 20px;}
 
+.photo-album-attachment ul.thumbs { padding-left: 0; }
+.photo-album-attachment ul.thumbs li { list-style: none; display: inline-block; margin: 0 20px 20px 0; }
+.photo-album-attachment .photo { margin-bottom: 20px; }
+.photo-album-attachment .photo img { margin-top: -10px; }
+.post .photo-album-attachment { padding-top: 10px; }
+
 .comment-form { padding: 0; margin-top: 30px; }
 .comment-form h4 { margin: 0 0 20px; font-weight: normal; }
 .comment-form-fields p { margin: 0 0 10px; }
@@ -76,6 +82,13 @@
 
 .pageless-wrapper { font-style: italic; }
 
+html.realtime-preview,
+html.realtime-preview body { background: #fff; }
+html.realtime-preview #header,
+html.realtime-preview h2.title,
+html.realtime-preview .app-navigation { display: none; }
+html.realtime-preview .content { margin-top: 0; }
+
 /* Plugins
 ---------- */
 
@@ -85,3 +98,38 @@
 .categories ul.menu-v li.selected a { color: #000; text-decoration: none; font-weight: bold; }
 
 .tags.cloud { padding: 10px 0; border: 1px solid #ccc; text-align: center; }
+
+
+/* TABLET
+========= */
+
+@media screen and (min-width: 760px) and (max-width: 1024px) {
+    
+}
+
+/* MOBILE
+========= */
+
+@media screen and (max-width: 760px) {
+
+    #header .subscribe { float: none; text-align: center; font-size: 130%; padding: 5px 5px 10px; }
+     
+    .post { margin-right: 0 !important; }
+    .post h3 { font-size: 1.5em; }
+    .post img { max-width: 100%; height: auto !important; }
+    
+    .comment-form-fields label { width: auto; float: none; }
+    .comment-form-fields input { width: 80%; }
+    .comment-form textarea { width: 90%; }
+    .comment-form .comment-submit { padding-left: 0; }
+    .comment-form .wa-captcha img { margin-bottom: 10px; }
+
+}
+
+/* WIDE
+========= */
+
+@media screen and (min-width: 1300px) {
+
+
+}

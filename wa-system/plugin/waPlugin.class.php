@@ -88,7 +88,7 @@ class waPlugin
             foreach ($files as $t => $file) {
                 try {
                     if (!$ignore_all) {
-                        include($file);
+                        $this->includeUpdate($file);
                         waFiles::delete($cache_database_dir);
                         $app_settings_model->set(array($this->app_id, $this->id), 'update_time', $t);
                     }
@@ -111,6 +111,14 @@ class waPlugin
             }
             $app_settings_model->set(array($this->app_id, $this->id), 'update_time', $t);
         }
+    }
+
+    /**
+     * @param string $file
+     */
+    private function includeUpdate($file)
+    {
+        include($file);
     }
 
     protected function install()
@@ -171,9 +179,7 @@ class waPlugin
         }
         // Remove plugin settings
         $app_settings_model = new waAppSettingsModel();
-        $sql = "DELETE FROM ".$app_settings_model->getTableName()."
-                WHERE app_id = s:app_id";
-        $app_settings_model->exec($sql, array('app_id' => $this->app_id.".".$this->id));
+        $app_settings_model->del($this->app_id.".".$this->id);
 
         if (!empty($this->info['rights'])) {
             // Remove rights to plugin
@@ -235,7 +241,7 @@ class waPlugin
         if (file_exists($file)) {
             return include($file);
         } else {
-            return array();
+            return;
         }
     }
 }

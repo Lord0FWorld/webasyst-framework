@@ -54,6 +54,10 @@ class waDbMySQLAdapter extends waDbAdapter
         // check error MySQL server has gone away
         if (!$r && mysql_errno($this->handler) == 2006 && mysql_ping($this->handler)) {
             return mysql_query($query, $this->handler);
+        } elseif (!$r && mysql_errno($this->handler) == 1104) {
+            // try set sql_big_selects
+            mysql_query('SET SQL_BIG_SELECTS=1', $this->handler);
+            return mysql_query($query, $this->handler);
         }
         return $r;
     }
@@ -172,6 +176,9 @@ class waDbMySQLAdapter extends waDbAdapter
                     if ($row['Key_name'] != 'PRIMARY' && !$row['Non_unique']) {
                         $rows[$row['Key_name']]['unique'] = 1;
                     }
+                    if ($row['Index_type'] == 'FULLTEXT') {
+                        $rows[$row['Key_name']]['fulltext'] = 1;
+                    }
                 }
             }
             $result[':keys'] = $rows;
@@ -185,8 +192,15 @@ class waDbMySQLAdapter extends waDbAdapter
         foreach ($data as $field_id => $field) {
             if (substr($field_id, 0, 1) != ':') {
                 $type = $field['type'].(!empty($field['params']) ? '('.$field['params'].')' : '');
+                foreach (array('unsigned', 'zerofill') as $k) {
+                    if (!empty($field[$k])) {
+                        $type .= ' '.strtoupper($k);
+                    }
+                }
                 if (isset($field['null']) && !$field['null']) {
                     $type .= ' NOT NULL';
+                } elseif (in_array(strtolower($field['type']), array('timestamp'))) {
+                    $type .= ' NULL';
                 }
                 if (isset($field['default'])) {
                     if ($field['default'] == 'CURRENT_TIMESTAMP') {

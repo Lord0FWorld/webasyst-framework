@@ -45,7 +45,8 @@ class photosViewHelper extends waAppViewHelper
     public function photo($id, $size = null)
     {
         $id = max(1,intval($id));
-        return array_shift($this->photos("id/{$id}", $size));
+        $photos = $this->photos("id/{$id}", $size);
+        return array_shift($photos);
     }
 
     public function option($name)
@@ -56,9 +57,11 @@ class photosViewHelper extends waAppViewHelper
     /**
      *
      * Get photos albums tree
+     * @param bool $return_html
+     * @param bool $custom_params get with custom params or not
      * @return string
      */
-    public function albums($return_html = true)
+    public function albums($return_html = true, $custom_params = true)
     {
         $album_model = new photosAlbumModel();
         $albums = $album_model->getAlbums(true);
@@ -66,6 +69,20 @@ class photosViewHelper extends waAppViewHelper
             $a['name'] = htmlspecialchars($a['name']);
         }
         unset($a);
+
+        if ($custom_params) {
+            $album_params_model = new photosAlbumParamsModel();
+            $params = $album_params_model->get(array_keys($albums));
+            foreach ($albums as $a_id => &$a) {
+                foreach (ifset($params[$a_id], array()) as $k => $v) {
+                    if (!isset($a[$k])) {
+                        $a[$k] = $v;
+                    }
+                }
+            }
+            unset($a);
+        }
+
         if ($return_html) {
             $tree = new photosViewTree($albums);
             return $tree->display('frontend');
@@ -107,18 +124,44 @@ class photosViewHelper extends waAppViewHelper
      * @param array $photo
      * @param string $size
      * @param array $attributes user-attribure, e.g. class or style
+     * @return string
      */
-    public function getImgHtml($photo, $size, $attributes = array())
+    public function getImgHtml($photo, $size, $attributes = array(), $style = true)
     {
         $attributes['data-size'] = $size;
         $attributes['data-photo-id'] = $photo['id'];
         $attributes['class'] = !empty($attributes['class']) ? $attributes['class'] : '';
         $attributes['class'] .= ' photo_img';    // !Important: obligatory class. Need in frontend JS
-        return photosPhoto::getEmbedImgHtml($photo, $size, $attributes);
+        return photosPhoto::getEmbedImgHtml($photo, $size, $attributes, $style);
     }
-    
+
     public function ratingHtml($rating, $size = 10, $show_when_zero = false)
     {
         return photosPhoto::getRatingHtml($rating, $size, $show_when_zero);
     }
+
+    public function childAlbums($parent_album_id=0)
+    {
+        $album_model = new photosAlbumModel();
+        $child_albums = $album_model->getChildren($parent_album_id);
+
+        foreach($child_albums as $i => &$ca) {
+            if (!$ca['status']) {
+                unset($child_albums[$i]);
+                continue;
+            }
+            $ca['full_url'] = photosFrontendAlbum::getLink($ca);
+        }
+        unset($ca);
+
+        $album_model->keyPhotos($child_albums);
+
+        foreach($child_albums as &$ca) {
+            $ca = photosFrontendAlbum::escapeFields($ca);
+        }
+        unset($ca);
+
+        return $child_albums;
+    }
 }
+

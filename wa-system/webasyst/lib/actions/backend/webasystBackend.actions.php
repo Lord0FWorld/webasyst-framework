@@ -14,7 +14,12 @@ class webasystBackendActions extends waViewActions
     public function defaultAction()
     {
         try {
+            $this->setLayout(new webasystBackendLayout());
             $this->view->assign("username", wa()->getUser()->getName());
+            $template_file = wa()->getDataPath('templates/BackendDefault.html', false, 'webasyst');
+            if (file_exists($template_file)) {
+                $this->template = 'file:'.$template_file;
+            }
         } catch (waException $e) { 
             // user not exists
             if ($e->getCode() == 404) {
@@ -27,6 +32,7 @@ class webasystBackendActions extends waViewActions
 
     public function logoutAction()
     {
+        $this->logAction('logout', wa()->getEnv());
         // Clear auth data
         $this->getUser()->logout();
 
@@ -46,7 +52,7 @@ class webasystBackendActions extends waViewActions
 
         $contact = new waContact($id);
         $rand = $contact['photo'];
-        $file = wa()->getDataPath("photo/$id/$rand.original.jpg", TRUE, 'contacts');
+        $file = wa()->getDataPath(waContact::getPhotoDir($id)."$rand.original.jpg", TRUE, 'contacts');
 
         $size = waRequest::get('size');
         if (!file_exists($file)) {

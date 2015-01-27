@@ -14,6 +14,7 @@
  */
 class waContactSelectField extends waContactField
 {
+    protected $validate_range = true;
     /**
      * Options for this select. array(id => name). Ids are stored in DB, and names are shown to user.
      * Default implementation uses 'options' parameter passed to constructor in $options
@@ -96,5 +97,30 @@ class waContactSelectField extends waContactField
 
         return parent::validate($data, $contact_id);
     }
+
+    public function getFormatter($format)
+    {
+        if ($format == 'html') {
+            return new waContactSelectFormatter($this->getOptions());
+        }
+        return parent::getFormatter($format);
+    }
 }
 
+
+class waContactSelectFormatter  extends waContactFieldFormatter
+{
+    public function format($data)
+    {
+        $result = array();
+        if (is_array($data)) {
+            foreach ($data as $k => $v) {
+                $result[$k] = htmlspecialchars(isset($this->options[$v]) ? $this->options[$v] : $v);
+            }
+            $result = implode(', ', $result);
+        } else {
+            $result = htmlspecialchars(isset($this->options[$data]) ? $this->options[$data] : $data);
+        }
+        return $result;
+    }
+}

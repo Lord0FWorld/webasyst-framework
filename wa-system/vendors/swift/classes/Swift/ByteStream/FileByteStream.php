@@ -10,9 +10,10 @@
 
 /**
  * Allows reading and writing of bytes to and from a file.
- * @package Swift
+ *
+ * @package    Swift
  * @subpackage ByteStream
- * @author Chris Corbyn
+ * @author     Chris Corbyn
  */
 class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterableInputStream implements Swift_FileStream
 {
@@ -39,11 +40,15 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
 
     /**
      * Create a new FileByteStream for $path.
-     * @param string $path
-     * @param string $writable if true
+     *
+     * @param string  $path
+     * @param bool    $writable if true
      */
     public function __construct($path, $writable = false)
     {
+        if (empty($path)) {
+            throw new Swift_IoException('The path cannot be empty');
+        }
         $this->_path = $path;
         $this->_mode = $writable ? 'w+b' : 'rb';
 
@@ -54,6 +59,7 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
 
     /**
      * Get the complete path to the file.
+     *
      * @return string
      */
     public function getPath()
@@ -63,11 +69,16 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
 
     /**
      * Reads $length bytes from the stream into a string and moves the pointer
-     * through the stream by $length. If less bytes exist than are requested the
+     * through the stream by $length.
+     *
+     * If less bytes exist than are requested the
      * remaining bytes are given instead. If no bytes are remaining at all, boolean
      * false is returned.
-     * @param  int               $length
-     * @return string
+     *
+     * @param int     $length
+     *
+     * @return string|bool
+     *
      * @throws Swift_IoException
      */
     public function read($length)
@@ -82,19 +93,29 @@ class Swift_ByteStream_FileByteStream extends Swift_ByteStream_AbstractFilterabl
                 ini_set('magic_quotes_runtime', 1);
             }
             $this->_offset = ftell($fp);
+            
+            // If we read one byte after reaching the end of the file
+            // feof() will return false and an empty string is returned
+            if ($bytes === '' && feof($fp)) {
+            	$this->_resetReadHandle();
+            	
+            	return false;
+            }
 
             return $bytes;
-        } else {
-            $this->_resetReadHandle();
-
-            return false;
         }
+
+        $this->_resetReadHandle();
+
+        return false;
     }
 
     /**
      * Move the internal read pointer to $byteOffset in the stream.
-     * @param  int     $byteOffset
-     * @return boolean
+     *
+     * @param int     $byteOffset
+     *
+     * @return bool
      */
     public function setReadPointer($byteOffset)
     {

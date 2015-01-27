@@ -12,7 +12,7 @@ msgstr ""
 "%10)>=2)&&((n%10)<=4))&&(((n%100)<10)||((n%100)>=20)))?(1):2));\n"
 "X-Poedit-SourceCharset: utf-8\n"
 "X-Poedit-Basepath: .\n"
-"X-Generator: Poedit 1.6.3\n"
+"X-Generator: Poedit 1.6.10\n"
 "Language: ru_RU\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: .\n"
@@ -183,13 +183,19 @@ msgstr[0] "%d фотография будет безвозвратно удал�
 msgstr[1] "%d фотографии будут безвозвратно удалены. "
 msgstr[2] "%d фотографий будут безвозвратно удалены. "
 
+msgid "%d photo have been successfully uploaded"
+msgid_plural "%d photos have been successfully uploaded"
+msgstr[0] "%d фотография успешно загружена"
+msgstr[1] "%d фотографии успешно загружены"
+msgstr[2] "%d фотографий успешно загружены"
+
 #: /wa-apps/photos/templates/actions/dialog/DialogConfirm.html:9
 msgid "Photo “%s” will be deleted without the ability to restore. "
 msgstr "Фотография «%s» будет безвозвратно удалена. "
 
 #: /wa-apps/photos/templates/actions/dialog/DialogConfirm.html:12
-msgid "This will unstack %d photo. "
-msgid_plural "This will unstack %d photos. "
+msgid "This will unstack %d photo."
+msgid_plural "This will unstack %d photos."
 msgstr[0] "Группа из %d фотографии будет разобрана."
 msgstr[1] "Группа из %d фотографий будет разобрана."
 msgstr[2] "Группа из %d фотографий будет разобрана."
@@ -1057,7 +1063,7 @@ msgid "top rated"
 msgstr "по оценке"
 
 #: /wa-apps/photos/lib/config/site.php:20
-msgid "Homepage title"
+msgid "Homepage &lt;title&gt;"
 msgstr "Заголовок главной страницы"
 
 #: /wa-apps/photos/lib/config/site.php:29
@@ -1456,3 +1462,218 @@ msgid ""
 msgstr ""
 "Загрузите фотографии, щелкнув по ссылке выше или перетащив фотографии из "
 "папки на вашем компьютере прямо на эту страницу."
+
+#: /wa-apps/photos/templates/layouts/Sidebar.html:50
+msgid "Create an album using the green icon above."
+msgstr "Создайте новый альбом с помощью зеленой иконки выше."
+
+#: /wa-apps/photos/templates/actions/dialog/DialogConfirm.html:6
+msgid "%d photo will be deleted without the ability to restore."
+msgid_plural "%d photos will be deleted without the ability to restore."
+msgstr[0] "%d фотография будет удалена без возможности восстановления."
+msgstr[1] "%d фотографии будут удалены без возможности восстановления."
+msgstr[2] "%d фотографий будут удалены без возможности восстановления."
+
+#: /wa-apps/photos/lib/config/logs.php:5
+msgid "created a new photo album"
+msgstr "создал новый фотоальбом"
+
+#: /wa-apps/photos/lib/config/logs.php:8
+msgid "deleted photo album"
+msgstr "удалил фотоальбом"
+
+#: /wa-apps/photos/lib/config/logs.php:12
+msgid "uploaded photos"
+msgstr "загрузил фото"
+
+#: /wa-apps/photos/lib/config/logs.php:15
+msgid "moved photo to another album"
+msgstr "переместил фото в другой альбом"
+
+#: /wa-apps/photos/lib/config/logs.php:18
+msgid "grouped photos"
+msgstr "сгруппировал фото"
+
+#: /wa-apps/photos/lib/config/logs.php:21
+msgid "ungrouped photos"
+msgstr "разгруппировал фото"
+
+#: /wa-apps/photos/lib/config/logs.php:24
+msgid "deleted photos"
+msgstr "удалил фото"
+
+#: /wa-apps/photos/lib/config/logs.php:27
+msgid "rated photos"
+msgstr "оценил фото"
+
+#: /wa-apps/photos/lib/config/logs.php:30
+msgid "edited photos"
+msgstr "отредактировал фото"
+
+#: /wa-apps/photos/lib/config/logs.php:33
+msgid "reverted to original photo"
+msgstr "восстановил оригинал фото"
+
+#: /wa-apps/photos/lib/config/site.php:34
+msgid "Homepage META Keywords"
+msgstr "META Keywords главной страницы"
+
+#: /wa-apps/photos/lib/config/site.php:38
+msgid "Homepage META Description"
+msgstr "META Description главной страницы"
+
+#: /wa-apps/photos/templates/actions/settings/Settings.html:144
+msgid "@2x image thumbnail generation"
+msgstr "Эскизы изображений @2x"
+
+#: /wa-apps/photos/templates/actions/settings/Settings.html:147
+msgid "Automatic @2x image thumbnail generation (recommended)"
+msgstr "Разрешить создание эскизов @2x по требованию (рекомендуется)"
+
+#: /wa-apps/photos/templates/actions/settings/Settings.html:149
+msgid ""
+"Enabling this option will allow automatic creation of image thumbnails on-"
+"fly for devices with high pixel density displays, e.g. Retina displays. "
+"Generating bigger images require more memory resources for image generation, "
+"requires more disk space for storing images, but significantly improves user "
+"experience on devices with high-end displays"
+msgstr ""
+"Включение этой настройки позволит автоматически создавать эскизы изображений "
+"для устройств с высокой плотностью пикселей, например, для устройств с "
+"Retina-дисплеем. Формирование таких изображений требует больше оперативной "
+"памяти сервера и больше места для хранения файлов, однако это существенно "
+"улучшит отображение товаров на современных мониторах."
+
+#: /wa-apps/photos/templates/actions/settings/Settings.html:154
+msgid "Thumbnail quality @2x"
+msgstr "Качество эскизов @2x"
+
+#: /wa-apps/photos/templates/actions/settings/Settings.html:158
+msgid ""
+"JPEG compression quality for photo thumbnails. From 0 (min quality, min file "
+"size) to 100 (max quality, max file size). 70 is recommended."
+msgstr ""
+"Качество сжатия JPEG для эскизов. От 0 (низкое качество, минимальный размер "
+"файла) до 100 (выше качество, больше размер файла). Рекомендуемое значение: "
+"70."
+
+#: /wa-apps/photos/lib/actions/frontend/photosFrontendMy.action.php:36
+#: /wa-apps/photos/lib/actions/frontend/photosFrontendMy.action.php:46
+msgid "My account"
+msgstr "Личный кабинет"
+
+#: /wa-apps/photos/lib/actions/frontend/photosFrontendMy.action.php:36
+msgid "My profile"
+msgstr "Мой профиль"
+
+#: /wa-apps/photos/themes/ascetic/index.html:88
+#: /wa-apps/photos/themes/clear/home.html:11
+#: /wa-apps/photos/themes/custom/home.html:11
+#: /wa-apps/photos/themes/default/home.html:11
+#: /wa-apps/photos/themes/facebook/home.html:11
+#: /wa-apps/photos/themes/nifty/home.html:11
+#: /wa-apps/photos/themes/pinboard/home.html:7
+#: /wa-apps/photos/themes/sidebar/home.html:11
+#: /wa-apps/photos/themes/vk/home.html:11
+msgid "Start by <a href=\"%s\">uploading photos</a> in your gallery backend."
+msgstr ""
+"Начните с <a href=\"%s\">загрузки фотографий</a> в бекенде фотогалереи."
+
+#: /wa-apps/photos/themes/default/album.html:39
+msgid "There are no photos in this album."
+msgstr "В этом альбоме нет фотографий."
+
+#: /wa-apps/photos/themes/default/photos-plain.html:47
+#: /wa-apps/photos/themes/default/photos-thumbs.html:41
+msgid "Load more"
+msgstr "Загрузить еще"
+
+msgid "(no name)"
+msgstr "(без имени)"
+
+#: /wa-apps/photos/templates/actions/backend/BackendAlbums.html:6
+msgid "The album list is empty."
+msgstr "Список альбомов пуст."
+
+#: /wa-apps/photos/templates/actions/dialog/DialogAlbumSettings.html:17
+#: /wa-apps/photos/templates/actions/dialog/DialogAlbumSettings.html:101
+#: /wa-apps/photos/templates/actions/dialog/DialogCreateAlbum.html:83
+msgid "Filter"
+msgstr "Фильтр"
+
+#: /wa-apps/photos/templates/actions/dialog/DialogAlbumSettings.html:112
+#: /wa-apps/photos/templates/actions/dialog/DialogCreateAlbum.html:110
+msgid "<strong>%s</strong> album only"
+msgstr "Только в альбоме «<strong>%s</strong>»"
+
+#: /wa-apps/photos/templates/actions/dialog/DialogAlbumSettings.html:113
+#: /wa-apps/photos/templates/actions/dialog/DialogCreateAlbum.html:111
+msgid "Dynamic albums filter photos only from albums they belong to."
+msgstr ""
+"Динамическая фильтрация производится только среди фотографий родительского "
+"альбома."
+
+#: /wa-apps/photos/templates/actions/dialog/DialogCreateAlbum.html:77
+msgid "A static album for adding and arranging photos manually."
+msgstr ""
+"Статический альбом, в котором фотографии добавляются и упорядочиваются "
+"вручную."
+
+#: /wa-apps/photos/templates/actions/dialog/DialogCreateAlbum.html:86
+msgid "A dynamic album based on search criteria, e.g. rating or tags."
+msgstr ""
+"Динамический альбом, содержимое которого формируется согласно указанными "
+"фильтрам, например, по оценкам или тегам."
+
+#: /wa-apps/photos/templates/actions/photo/PhotoList.html:82
+msgid "Drag some photos anywhere on this page to start upload"
+msgstr ""
+"Перетащите фотографии в любое место на этой странице, чтобы начать загрузку."
+
+#: /wa-apps/photos/templates/actions/photo/PhotoList.html:172
+msgid "In this album"
+msgstr "В этом альбоме"
+
+#: /wa-apps/photos/templates/actions/photo/PhotoList.html:209
+msgid "This is a key photo for this album"
+msgstr "Фото на обложке альбома"
+
+#: /wa-apps/photos/templates/actions/photo/PhotoList.html:217
+msgid "Private photos are not visible in public albums"
+msgstr "Приватные фотографии не видны в общедоступных опубликованных альбомах"
+
+#: /wa-apps/photos/templates/actions/photo/PhotoList.html:244
+msgid "make key photo"
+msgstr "сделать обложкой альбома"
+
+#: /wa-apps/photos/templates/layouts/Default.html:105
+#: /wa-apps/photos/themes/default/photo.html:18
+msgid "← Previous"
+msgstr "← Предыдущая"
+
+#: /wa-apps/photos/lib/actions/backend/photosBackendLog.controller.php:12
+msgid "Uploaded %d photo"
+msgid_plural "Uploaded %d photos"
+msgstr[0] "Загружена %d фотография"
+msgstr[1] "Загружены %d фотографии"
+msgstr[2] "Загружено %d фотографий"
+
+#: /wa-apps/photos/lib/config/site.php:125
+msgid ""
+"Returns the entire album tree as an array (<em>return_html = false</em>) or "
+"as an pre-rendered HTML (<em>return_html = true</em>). <em>custom_params = "
+"true</em> will include album custom parameters into the output."
+msgstr ""
+"Возвращает дерево альбомов в виде массива (<em>return_html = false</em>) или "
+"готового для отображения HTML-кода дерева (<em>return_html = true</em>). "
+"Если передан параметр <em>custom_params = true</em>, то в массив также будут "
+"добавлены дополнительные параметры альбомов."
+
+#: /wa-apps/photos/lib/config/site.php:126
+msgid ""
+"Returns sub albums by <em>parent_album_id</em>. If <em>parent_album_id</em> "
+"is empty, root albums will be returned."
+msgstr ""
+"Возвращает массив дочерних альбомов по <em>parent_album_id</em>. Если "
+"параметр <em>parent_album_id</em> не указан, будут возвращены корневые "
+"альбомы."

@@ -17,12 +17,14 @@ class waAppConfig extends SystemConfig
     protected $application = null;
     protected $info = array();
     protected $log_actions = null;
+    protected $system_log_actions = null;
     protected $prefix;
     protected $plugins = null;
     protected $themes = null;
     protected $options = array();
     protected $routes = null;
     protected $loaded_locale = null;
+    protected $cache = null;
 
     public function __construct($environment, $root_path, $application = null, $locale = null)
     {
@@ -37,40 +39,139 @@ class waAppConfig extends SystemConfig
         }
     }
 
+    /**
+     * Returns app's id.
+     *
+     * @return string
+     */
     public function getApplication()
     {
         return $this->application;
     }
 
-    public function getLogActions()
+    public function getCache($type = 'default')
+    {
+        if ($this->cache === null) {
+            $file_path = $this->getPath('config', 'cache');
+            if (file_exists($file_path)) {
+                $cache_config = include($file_path);
+                if (isset($cache_config[$type])) {
+                    $options = $cache_config[$type];
+                    $cache_type = $options['type'];
+                    $cache_class = 'wa' . ucfirst($cache_type) . 'CacheAdapter';
+                    try {
+                        $cache_adapter = new $cache_class($options);
+                        $this->cache = new waCache($cache_adapter, $this->application);
+                    } catch (waException $e) {
+                        waLog::log($e->getMessage());
+                    }
+                }
+            }
+            if (!$this->cache) {
+                $this->cache = false;
+            }
+        }
+        return $this->cache;
+    }
+
+    public function getLogActions($full = false, $ignore_system = false)
     {
         if ($this->log_actions === null) {
             $path = $this->getAppPath().'/lib/config/logs.php';
             if (file_exists($path)) {
                 $this->log_actions = include($path);
+                if ($full) {
+                    foreach ($this->log_actions as &$info) {
+                        if (!empty($info['name'])) {
+                            $info['name'] = _wd($this->getApplication(), $info['name']);
+                        }
+                    }
+                    unset($info);
+                }
             } else {
                 $this->log_actions = array();
             }
-            // add system actions for design and pages
-            if (!empty($this->info['themes'])) {
-                $actions = array('template_add', 'template_edit', 'template_delete',
-                    'theme_upload', 'theme_download', 'theme_delete', 'theme_reset', 'theme_duplicate', 'theme_rename', );
-                foreach ($actions as $action) {
-                    if (!isset($this->log_actions[$action])) {
-                        $this->log_actions[$action] = array();
-                    }
-                }
-            }
-            if (!empty($this->info['pages'])) {
-                $actions = array('page_add', 'page_edit', 'page_delete', 'page_move');
-                foreach ($actions as $action) {
-                    if (!isset($this->log_actions[$action])) {
-                        $this->log_actions[$action] = array();
-                    }
-                }
-            }
+        }
+        if (!$ignore_system) {
+            $system_actions = $this->getSystemLogActions();
+            return array_merge($this->log_actions, $system_actions);
         }
         return $this->log_actions;
+    }
+
+    public function getSystemLogActions()
+    {
+        if ($this->system_log_actions === null) {
+            $actions = array();
+            // add system actions for design and pages
+            if (!empty($this->info['themes'])) {
+                $actions = array_merge($actions, array(
+                    'template_add' => array(
+                        'name' => _ws('added a new template')
+                    ),
+                    'template_edit' => array(
+                        'name' => _ws('edited template')
+                    ),
+                    'template_delete' => array(
+                        'name' => _ws('deleted template')
+                    ),
+                    'theme_upload' => array(
+                        'name' => _ws('uploaded a new theme')
+                    ),
+                    'theme_download' => array(
+                        'name' => _ws('downloaded theme')
+                    ),
+                    'theme_delete' => array(
+                        'name' => _ws('deleted theme')
+                    ),
+                    'theme_reset' => array(
+                        'name' => _ws('reset theme settings')
+                    ),
+                    'theme_duplicate' => array(
+                        'name' => _ws('create theme duplicate')
+                    ),
+                    'theme_rename' => array(
+                        'name' => _ws('renamed theme')
+                    ),
+                ));
+            }
+            if (!empty($this->info['pages'])) {
+                $actions = array_merge($actions, array(
+                    'page_add' => array(
+                        'name' => _ws('added a new page')
+                    ),
+                    'page_edit' => array(
+                        'name' => _ws('edited a website page')
+                    ),
+                    'page_delete' => array(
+                        'name' => _ws('deleted page')
+                    ),
+                    'page_move' => array(
+                        'name' => _ws('moved page')
+                    )
+                ));
+            }
+            $actions['login'] = array(
+                'name' => _ws('logged in')
+            );
+            $actions['logout'] = array(
+                'name' => _ws('logged out')
+            );
+            $actions['signup'] = array(
+                'name' => _ws('signed up')
+            );
+            $actions['my_profile_edit'] = array(
+                'name' => _ws('edited profile in customer portal')
+            );
+            $actions['access_enable'] = array(
+                'name' => _ws('enabled access for contact')
+            );
+            $actions['access_disable'] = array(
+                'name' => _ws('disabled access for contact')
+            );
+            $this->system_log_actions = $actions;
+        }
+        return $this->system_log_actions;
     }
 
     protected function configure()
@@ -79,7 +180,9 @@ class waAppConfig extends SystemConfig
     }
 
     /**
-     * @param string $name
+     * Returns app configuration parameter values.
+     *
+     * @param string $name The name of configuration parameter whose value must be returned.
      * @return mixed
      */
     public function getOption($name = null)
@@ -108,7 +211,7 @@ class waAppConfig extends SystemConfig
         }
 
         $this->info = include($this->getAppPath().'/lib/config/app.php');
-        if (wa()->getEnv() == 'backend' && isset($this->info['csrf']) && $this->info['csrf'] && waRequest::method() == 'post') {
+        if ($this->environment == 'backend' && !empty($this->info['csrf']) && waRequest::method() == 'post') {
             if (waRequest::post('_csrf') != waRequest::cookie('_csrf')) {
                 throw new waException('CSRF Protection', 403);
             }
@@ -182,7 +285,7 @@ class waAppConfig extends SystemConfig
             foreach ($files as $t => $file) {
                 try {
                     if (!$ignore_all) {
-                        include($file);
+                        $this->includeUpdate($file);
                         waFiles::delete($cache_database_dir);
                         $app_settings_model->set($this->application, 'update_time', $t);
                     }
@@ -221,6 +324,11 @@ class waAppConfig extends SystemConfig
             }
         }
 
+    }
+
+    private function includeUpdate($file)
+    {
+        include($file);
     }
 
     public function install()
@@ -402,16 +510,39 @@ class waAppConfig extends SystemConfig
         }
     }
 
+    /**
+     * Returns path to app's source files directory.
+     *
+     * @param unknown_type $path Optional path to a subdirectory inside app's lib/ directory
+     * @return string
+     */
     public function getAppPath($path = null)
     {
         return $this->getRootPath().DIRECTORY_SEPARATOR.'wa-apps'.DIRECTORY_SEPARATOR.$this->application.($path ? DIRECTORY_SEPARATOR.$path : '');
     }
 
+    /**
+     * Returns path to specified configuration file of current app, located in its lib/config/ directory.
+     *
+     * @param string $name Name of configuration file without extension
+     * @return string
+     */
     public function getAppConfigPath($name)
     {
         return $this->getAppPath("lib/config/".$name.".php");
     }
 
+    /**
+     * Returns path to app's configuration file with specified name.
+     *
+     * @see waSystemConfig::getConfigPath()
+     * @param string $name Name of the configuration file whose path must be returned
+     * @param bool $user_config Whether path to a file located in wa-config/apps/[app_id]/ directory must be returned,
+     *     which is used for storing custom user configuration. If false is specified, method returns path to a file
+     *     located in wa-apps/[app_id]/lib/config/.
+     * @param string $app Optional app id, defaults to current app's id
+     * @return string
+     */
     public function getConfigPath($name, $user_config = true, $app = null)
     {
         if ($app === null) {
@@ -447,11 +578,23 @@ class waAppConfig extends SystemConfig
         return $this->prefix;
     }
 
+    /**
+     * Returns app's name from its configuration file lib/config/app.php.
+     *
+     * @return string
+     */
     public function getName()
     {
         return $this->getInfo('name');
     }
 
+    /**
+     * Returns information from app's configuration file lib/config/app.php.
+     *
+     * @param string $name Name of parameter whose value must be returned. If not specified, method returns
+     *     associative array of all parameters contained in configuration file.
+     * @return string|array
+     */
     public function getInfo($name = null)
     {
         if ($name === null) {
@@ -461,11 +604,23 @@ class waAppConfig extends SystemConfig
         }
     }
 
+    /**
+     * Returns path to the source files of an app's plugin.
+     *
+     * @param string $plugin_id Plugin id
+     * @return string
+     */
     public function getPluginPath($plugin_id)
     {
         return $this->getAppPath()."/plugins/".$plugin_id;
     }
 
+    /**
+     * Returns information about app's plugin.
+     *
+     * @param string $plugin_id Plugin id
+     * @return array
+     */
     public function getPluginInfo($plugin_id)
     {
         if ($this->plugins === null) {
@@ -474,6 +629,11 @@ class waAppConfig extends SystemConfig
         return isset($this->plugins[$plugin_id]) ? $this->plugins[$plugin_id] : array();
     }
 
+    /**
+     * Returns information about all app's installed plugins as an associative array.
+     *
+     * @return array
+     */
     public function getPlugins()
     {
         if ($this->plugins === null) {
@@ -511,6 +671,7 @@ class waAppConfig extends SystemConfig
                         }
                         waSystem::popActivePlugin();
                         $plugin_info['id'] = $plugin_id;
+                        $plugin_info['app_id'] = $this->application;
                         if (isset($plugin_info['img'])) {
                             $plugin_info['img'] = 'wa-apps/'.$this->application.'/plugins/'.$plugin_id.'/'.$plugin_info['img'];
                         }
@@ -568,6 +729,11 @@ class waAppConfig extends SystemConfig
         return null;
     }
 
+    /**
+     * Sets or clears the value of app's indicator displayed next to its icon in main backend menu.
+     *
+     * @param mixed Indicator value. If empty value is specified, indicator value is cleared.
+     */
     public function setCount($n = null)
     {
         $count = wa()->getStorage()->get('apps-count');
